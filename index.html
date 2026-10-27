@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101326">
+<title>SHADOW-X | Secret Message Translator</title>
+<style>
+:root{color-scheme:dark;--bg:#0b0d18;--panel:#15192b;--line:#2a3150;--cyan:#73f5df;--purple:#a78bfa;--muted:#a9b1ce;--white:#f6f7ff}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#202044 0%,var(--bg) 52%);color:var(--white);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+.wrap{width:min(920px,100%);margin:auto;padding:22px 16px 42px}
+header{text-align:center;padding:18px 0 22px}
+.logo{display:inline-flex;align-items:center;justify-content:center;width:62px;height:62px;border:1px solid #5e65a5;border-radius:20px;background:#171b35;font-size:28px;box-shadow:0 0 35px #8b5cf633}
+h1{margin:12px 0 4px;letter-spacing:3px;font-size:clamp(28px,7vw,42px)}
+h1 span{color:var(--cyan)}
+.sub{color:var(--muted);margin:0;font-size:14px}
+.pill{display:inline-block;margin-top:13px;padding:6px 11px;border:1px solid #3e486a;border-radius:99px;color:var(--cyan);font-size:11px;letter-spacing:1.2px}
+.card{background:linear-gradient(145deg,#191d33ee,#111424f5);border:1px solid var(--line);border-radius:20px;padding:18px;margin:14px 0;box-shadow:0 12px 34px #0002}
+.labelrow{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}
+label,.sectiontitle{font-weight:700;font-size:14px}
+.small{font-size:12px;color:var(--muted)}
+textarea{display:block;width:100%;min-height:150px;resize:vertical;background:#0c1020;border:1px solid #333b5b;border-radius:13px;padding:14px;color:var(--white);font:15px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;outline:none}
+textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 3px #73f5df18}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:13px}
+button{border:0;border-radius:12px;padding:13px 14px;font-size:14px;font-weight:750;cursor:pointer;min-height:46px}
+.primary{background:linear-gradient(100deg,var(--cyan),#8ab8ff);color:#101326}
+.secondary{background:#252a46;border:1px solid #3b4267;color:var(--white)}
+button:active{transform:scale(.99)}
+.result{white-space:pre-wrap;overflow-wrap:anywhere;min-height:72px;background:#0c1020;border:1px dashed #3b4267;border-radius:13px;padding:14px;font:15px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace}
+.result.empty{color:#77809f}
+.resultactions{display:flex;gap:10px;margin-top:10px}
+.resultactions button{flex:1}
+.status{min-height:20px;margin-top:9px;color:var(--cyan);font-size:13px}
+details{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}
+summary{cursor:pointer;font-weight:700}
+.dict{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.word{background:#0c1020;border:1px solid #29304d;border-radius:10px;padding:9px 10px;font-size:13px;display:flex;justify-content:space-between;gap:8px}
+.word b{color:var(--cyan);font-weight:700}
+footer{text-align:center;color:var(--muted);font-size:12px;line-height:1.6;padding:10px 8px}
+.note{border-left:3px solid var(--purple);padding:10px 12px;background:#a78bfa0d;color:#c6cbe0;font-size:12px;line-height:1.6;border-radius:0 8px 8px 0}
+@media(min-width:700px){.columns{display:grid;grid-template-columns:1fr 1fr;gap:14px}.card{margin:14px 0}.dict{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:360px){.wrap{padding:14px 10px}.card{padding:13px}.actions{grid-template-columns:1fr}.dict{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="logo" aria-hidden="true">⌁</div>
+  <h1>SHADOW-<span>X</span></h1>
+  <p class="sub">Secret Message Translator</p>
+  <div class="pill">PRIVATE LANGUAGE · NO ACCOUNT NEEDED</div>
+</header>
+
+<div class="card">
+  <div class="labelrow"><label for="source">YOUR MESSAGE</label><span class="small" id="modeLabel">ENCODE MODE</span></div>
+  <textarea id="source" placeholder="Type or paste a message here…&#10;നാളെ കാണാം!"></textarea>
+  <div class="actions">
+    <button class="primary" id="encodeBtn">🔐 Encode message</button>
+    <button class="secondary" id="decodeBtn">🔓 Decode message</button>
+  </div>
+  <div class="status" id="status" role="status" aria-live="polite"></div>
+</div>
+
+<div class="card">
+  <div class="labelrow"><label for="output">TRANSLATED MESSAGE</label><span class="small">SHADOW-X</span></div>
+  <div class="result empty" id="output">Your translated message will appear here…</div>
+  <div class="resultactions">
+    <button class="secondary" id="copyBtn">📋 Copy result</button>
+    <button class="secondary" id="useBtn">↩ Use as input</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="sectiontitle">How to use</div>
+  <p class="small">1. Type a message and tap <b>Encode message</b>.</p>
+  <p class="small">2. Copy the result and send it in Instagram DM.</p>
+  <p class="small">3. Your friend pastes the code here and taps <b>Decode message</b>.</p>
+  <details>
+    <summary>View the shared word dictionary</summary>
+    <div class="dict" id="dict"></div>
+  </details>
+  <div class="note" style="margin-top:15px">Important: this is a custom code language / obfuscation, not strong encryption. Anyone who has this website's code and understands the format may decode messages. Don't use it for passwords, OTPs, or sensitive information.</div>
+</div>
+<footer>SHADOW-X • Works in your browser • No login • Messages are not sent to a server by this page</footer>
+</div>
+<script>
+(() => {
+  const dictionary = {
+    "hi":"veko","hello":"zavi","friend":"noru","bro":"krex","where":"davoq",
+    "what":"mirex","why":"pavoq","when":"jirek","come":"tavik","go":"rovek",
+    "wait":"zunex","quickly":"fexar","now":"dunek","later":"vunor","today":"kavex",
+    "tomorrow":"juvak","yes":"evor","no":"nexu","okay":"birek","good":"lavor",
+    "bad":"drexu","funny":"mavik","secret":"xyvor","school":"kedro","teacher":"tervaq",
+    "home":"navik","phone":"zerik","message":"vexlo","call":"jexor","group":"qavik",
+    "everyone":"morvek","stop":"grevak","run":"furak","eat":"nivik","food":"pelor",
+    "happy":"virel","angry":"draxen","friendship":"norvek","bye":"zovek",
+    "i":"mi","you":"yu","he":"hev","she":"shev","we":"wex","they":"thav",
+    "am":"vek","is":"zek","are":"rek","at":"dov","in":"nuv","to":"tek",
+    "the":"qir","and":"aven","but":"bex","not":"nok","know":"zarek",
+    "understand":"vorex","meet":"javor","secretly":"xavren","because":"bavor",
+    "please":"plavo","thanks":"tenor","sorry":"sorex","love":"luma","like":"liki",
+    "want":"vanta","need":"nedor","see":"sivo","talk":"talvo","comehere":"tavikdun",
+    "yesplease":"evorplavo","friendship":"norvek","today":"kavex","tomorrow":"juvak"
+  };
+  const reverse = {};
+  Object.entries(dictionary).forEach(([plain, code]) => reverse[code] = plain);
+  const source = document.getElementById("source");
+  const output = document.getElementById("output");
+  const status = document.getElementById("status");
+  const modeLabel = document.getElementById("modeLabel");
+  let lastResult = "";
+
+  // Unknown words are represented as UTF-8 hex inside ~...~ tokens.
+  // Known words use the shared SHADOW-X dictionary.
+  function fallbackEncode(word) {
+    return "~" + Array.from(new TextEncoder().encode(word), b => b.toString(16).padStart(2,"0")).join("") + "~";
+  }
+  function fallbackDecode(token) {
+    try {
+      const hex = token.slice(1,-1);
+      if (hex.length % 2 || !/^[0-9a-f]*$/i.test(hex)) return token;
+      const bytes = new Uint8Array(hex.match(/.{2}/g)?.map(pair => parseInt(pair,16)) || []);
+      return new TextDecoder().decode(bytes);
+    } catch { return token; }
+  }
+  function encode(text) {
+    // Keep punctuation and whitespace as-is, converting each word independently.
+    return text.split(/(\s+|[.,!?;:()[\]{}"'“”‘’…—–-]+)/u).map(part => {
+      if (!part || /^\s+$/u.test(part) || /^[.,!?;:()[\]{}"'“”‘’…—–-]+$/u.test(part)) return part;
+      const lower = part.toLocaleLowerCase();
+      const code = dictionary[lower];
+      if (code) {
+        if (part === lower) return code.toUpperCase();
+        if (part === part.toUpperCase()) return code.toUpperCase();
+        return code.charAt(0).toUpperCase() + code.slice(1);
+      }
+      return fallbackEncode(part);
+    }).join("");
+  }
+  function decode(text) {
+    // Encoded words are dictionary tokens or ~base64~ fallback tokens.
+    return text.split(/(\s+|[.,!?;:()[\]{}"'“”‘’…—–-]+)/u).map(part => {
+      if (!part || /^\s+$/u.test(part) || /^[.,!?;:()[\]{}"'“”‘’…—–-]+$/u.test(part)) return part;
+      if (/^~[A-Za-z0-9_-]*~$/.test(part)) return fallbackDecode(part);
+      const plain = reverse[part.toLowerCase()];
+      if (plain) {
+        if (part === part.toUpperCase()) return plain.toUpperCase();
+        if (part[0] === part[0].toUpperCase()) return plain.charAt(0).toUpperCase() + plain.slice(1);
+        return plain;
+      }
+      return part;
+    }).join("");
+  }
+  function showResult(value, message) {
+    lastResult = value;
+    output.textContent = value || "Nothing to translate yet.";
+    output.classList.toggle("empty", !value);
+    status.textContent = message || "";
+  }
+  document.getElementById("encodeBtn").addEventListener("click", () => {
+    modeLabel.textContent = "ENCODE MODE";
+    if (!source.value.trim()) return showResult("", "Type a message first.");
+    showResult(encode(source.value), "Encoded. Copy and send it to your friend.");
+  });
+  document.getElementById("decodeBtn").addEventListener("click", () => {
+    modeLabel.textContent = "DECODE MODE";
+    if (!source.value.trim()) return showResult("", "Paste a coded message first.");
+    showResult(decode(source.value), "Decoded. Unknown non-code words are left unchanged.");
+  });
+  document.getElementById("copyBtn").addEventListener("click", async () => {
+    if (!lastResult) return showResult("", "There is no result to copy yet.");
+    try {
+      await navigator.clipboard.writeText(lastResult);
+      status.textContent = "Copied to clipboard ✓";
+    } catch {
+      const temp = document.createElement("textarea");
+      temp.value = lastResult; document.body.appendChild(temp); temp.select();
+      const ok = document.execCommand("copy"); temp.remove();
+      status.textContent = ok ? "Copied to clipboard ✓" : "Select and copy the result manually.";
+    }
+  });
+  document.getElementById("useBtn").addEventListener("click", () => {
+    if (!lastResult) return;
+    source.value = lastResult;
+    source.focus();
+    status.textContent = "Result moved to input.";
+  });
+  const dictEl = document.getElementById("dict");
+  Object.entries(dictionary).filter(([word],i,arr) => arr.findIndex(x=>x[0]===word)===i)
+    .sort((a,b)=>a[0].localeCompare(b[0])).forEach(([word,code]) => {
+      const item = document.createElement("div"); item.className = "word";
+      const left = document.createElement("span"); left.textContent = word;
+      const right = document.createElement("b"); right.textContent = code.toUpperCase();
+      item.append(left,right); dictEl.appendChild(item);
+    });
+})();
+</script>
+</body>
+</html>
